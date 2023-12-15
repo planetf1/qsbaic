@@ -153,7 +153,11 @@ RUN cat CA.crt >> qsc-ca-chain.crt
  RUN wget https://dlcdn.apache.org/apr/apr-util-1.6.3.tar.gz && tar xzvf apr-util-1.6.3.tar.gz
  RUN wget --trust-server-names "https://archive.apache.org/dist/httpd/httpd-2.4.57.tar.gz" && tar -zxvf httpd-2.4.57.tar.gz
  
+ # TODO What is this for? vvv
+
  # RUN sed -i "s/\$RM \"\$cfgfile\"/\$RM -f \"\$cfgfile\"/g" apr-1.7.4/configure
+
+ # -- replaced by using the httpd-driven build of apr / apr-utils
  # RUN cd apr-1.7.4 && ./configure --prefix=$BUILD_DIR  && make && make install
  # Removed architecture statement
  # RUN cd apr-util-1.6.3 && ./configure x86_64-pc-linux-gnu --with-crypto --with-openssl=${OPENSSL_PATH} --with-apr=/usr/local/apr && make && make install
@@ -181,3 +185,9 @@ RUN cat CA.crt >> qsc-ca-chain.crt
 
  # NOTE - https://httpd.apache.org/docs/2.4/install.html
  # need to correctly specify APR and APR-util
+
+
+ # Possible TODOs
+ # split out build activities into base build images
+ # add different runtimes for client/server
+ # assemble using k8s or docker compose (inc. certificates)
