@@ -186,8 +186,26 @@ RUN cat CA.crt >> qsc-ca-chain.crt
  # NOTE - https://httpd.apache.org/docs/2.4/install.html
  # need to correctly specify APR and APR-util
 
+# Copy the httpd conf file
+ADD httpd.conf  $HTTPD_PATH/conf/httpd.conf 
+ADD httpd-ssl.conf $HTTPD_PATH/conf/httpd-ssl.conf
+RUN mkdir -p $HTTPD_PATH/docs/c29258v1-ssl /home/blog/docs
+ADD index.html $HTTPD_PATH/c29258v1-ssl/index.html
+
+# Move certs into right place
+
+RUN cp $WORKSPACE/server.crt $HTTPD_PATH
+RUN cp $WORKSPACE/qsc-ca-chain.crt $HTTPD_PATH
+RUN cp $WORKSPACE/CA.crt $HTTPD_PATH
+
 
  # Possible TODOs
  # split out build activities into base build images
  # add different runtimes for client/server
  # assemble using k8s or docker compose (inc. certificates)
+
+#CMD [ "/home/blog/quantumsafe/httpd/bin/httpd", "-D", "foreground", "-e", "debug" ]
+#CMD "$HTTPD_PATH/bin/httpd -e debug -X -D foreground"
+ENTRYPOINT [ "/home/blog/quantumsafe/httpd/bin/httpd" ]
+CMD [ "-X", "-e", "debug" ]
+# Test with  $WORKSPACE/bin/curl -v --cacert $WORKSPACE/qsc-ca-chain.crt --curves kyber512:p521_kyber1024 https://c29258v1.ibm.com
