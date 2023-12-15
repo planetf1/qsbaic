@@ -153,16 +153,31 @@ RUN cat CA.crt >> qsc-ca-chain.crt
  RUN wget https://dlcdn.apache.org/apr/apr-util-1.6.3.tar.gz && tar xzvf apr-util-1.6.3.tar.gz
  RUN wget --trust-server-names "https://archive.apache.org/dist/httpd/httpd-2.4.57.tar.gz" && tar -zxvf httpd-2.4.57.tar.gz
  
- RUN sed -i "s/\$RM \"\$cfgfile\"/\$RM -f \"\$cfgfile\"/g" apr-1.7.4/configure
- RUN cd apr-1.7.4 && ./configure --prefix=$BUILD_DIR  && make && make install
+ # RUN sed -i "s/\$RM \"\$cfgfile\"/\$RM -f \"\$cfgfile\"/g" apr-1.7.4/configure
+ # RUN cd apr-1.7.4 && ./configure --prefix=$BUILD_DIR  && make && make install
  # Removed architecture statement
  # RUN cd apr-util-1.6.3 && ./configure x86_64-pc-linux-gnu --with-crypto --with-openssl=${OPENSSL_PATH} --with-apr=/usr/local/apr && make && make install
- RUN cd apr-util-1.6.3 && ./configure --prefix=$BUILD_DIR --with-crypto --with-openssl=${OPENSSL_PATH} --with-apr=$BUILD_DIR && make && make install
- 
+ #RUN cd apr-util-1.6.3 && ./configure --prefix=$BUILD_DIR --with-crypto --with-openssl=${OPENSSL_PATH} --with-apr=$BUILD_DIR && make && make install
+
  WORKDIR $WORKSPACE/httpd-${HTTPD_VERSION}
+  
+ RUN mkdir -p srclib
+ RUN mv ../apr-1.7.4 srclib/apr
+ RUN mv ../apr-util-1.6.3 srclib/apr-util
+
+ #RUN ./configure --prefix=${HTTPD_PATH} \
+ #        --enable-debugger-mode \
+ #        --enable-ssl --with-ssl=${OPENSSL_PATH} \
+ #        --enable-ssl-staticlib-deps \
+ #        --enable-mods-static=ssl && \
+ #        --with-apr=$BUILD_DIR
  RUN ./configure --prefix=${HTTPD_PATH} \
          --enable-debugger-mode \
          --enable-ssl --with-ssl=${OPENSSL_PATH} \
          --enable-ssl-staticlib-deps \
-         --enable-mods-static=ssl && \
+         --enable-mods-static=ssl \
+         --with-included-apr
  RUN make && make install;
+
+ # NOTE - https://httpd.apache.org/docs/2.4/install.html
+ # need to correctly specify APR and APR-util
